@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Moreartyjs by Tvaroh</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Moreartyjs</h1>
+          <h2>Morearty.js - better state management for React in pure JavaScript</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/Tvaroh/moreartyjs/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/Tvaroh/moreartyjs/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/Tvaroh/moreartyjs" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#download">Download</a></li>
+<li><a href="#dependencies">Dependencies</a></li>
+<li><a href="#changelog">Changelog</a></li>
+<li><a href="#api-documentation">API documentation</a></li>
+<li><a href="#usage">Usage</a></li>
+<li>
+<a href="#todomvc">TodoMVC</a>
+
+<ul>
+<li><a href="#app-component">App component</a></li>
+<li><a href="#header-component">Header component</a></li>
+<li><a href="#todolist-component">TodoList component</a></li>
+<li><a href="#todoitem-component">TodoItem component</a></li>
+<li><a href="#footer-component">Footer component</a></li>
+<li><a href="#starting-the-application">Starting the application</a></li>
+<li><a href="#principal-differences-from-raw-react">Principal differences from raw React</a></li>
+</ul>
+</li>
+<li><a href="#custom-shouldcomponentupdate">Custom shouldComponentUpdate</a></li>
+<li><a href="#multi-binding-components-and-default-binding">Multi-binding component and default binding</a></li>
+<li><a href="#default-state-publication">Default state publication</a></li>
+<li><a href="#requestanimationframe-support">requestAnimationFrame support</a></li>
+<li><a href="#other-features">Other features</a></li>
+<li><a href="#future-goals-by-priority">Future goals by priority</a></li>
+<li><a href="#credits">Credits</a></li>
+</ul><h1>
+<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h1>
+
+<p><strong>Morearty.js</strong> is a thin layer on top of <a href="http://facebook.github.io/react/index.html">React</a> (implemented as a mixin) providing better state management facilities in the manner of <a href="https://github.com/swannodette/om">Om</a> but written in pure JavaScript.</p>
+
+<p>Underneath Morearty leverages immutable data structures provided by Facebook's <a href="https://github.com/facebook/immutable-js">Immutable</a> library which hold the state of an application. That state is described by a single <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Binding.html">Binding</a> object and all state transitions are performed through it. When an application component needs to delegate a part of its state to a sub-component, it can create a <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Binding.html#sub">sub-binding</a> which points to a nested location within the global state and is fully synchronized with the original binding. This way every component knows only what it should know and the entire state is effectively encapsulated. Morearty detects any changes automatically and triggers re-rendering. Each component gets a correctly defined <a href="http://facebook.github.io/react/docs/component-specs.html#updating-shouldcomponentupdate">shouldComponentUpdate</a> method that compares the component's state using straightforward JavaScript strict equals operator <code>===</code>. This is possible due to immutable nature of underlying data structures. So, only the components whose state was altered are re-rendered.</p>
+
+<h1>
+<a name="download" class="anchor" href="#download"><span class="octicon octicon-link"></span></a>Download</h1>
+
+<p>Current version is 0.4.0. Test coverage is almost 100% with more than 200 test cases. Browser, AMD, Node.js environments are supported. You can get <a href="https://raw.githubusercontent.com/Tvaroh/moreartyjs/master/dist/morearty.min.js">production</a> (20kb) and <a href="https://raw.githubusercontent.com/Tvaroh/moreartyjs/master/dist/morearty.js">development</a> (60kb) versions. Or just <code>npm install morearty</code>. In browser loading with <a href="http://requirejs.org/">Require.js</a> is preferable. Starting from version 0.4.0 Morearty requires globally-available <code>React</code> and <code>Immutable</code> vars.</p>
+
+<h1>
+<a name="dependencies" class="anchor" href="#dependencies"><span class="octicon octicon-link"></span></a>Dependencies</h1>
+
+<p>Morearty requires React version 0.11.1 or higher (<a href="http://facebook.github.io/react/downloads.html">download</a>) and Immutable 2.0.16 or higher (<a href="https://github.com/facebook/immutable-js/tree/master/dist">download</a>). <strong>Both should be available as global variables with names <code>React</code> and <code>Immutable</code>.</strong> Require.js users can do something like:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">require</span><span class="p">.</span><span class="nx">config</span><span class="p">({</span>
+  <span class="nx">paths</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">react</span><span class="o">:</span> <span class="s1">'path/to/react'</span><span class="p">,</span>
+    <span class="nx">immutable</span><span class="o">:</span> <span class="s1">'path/to/immutable'</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="nx">require</span><span class="p">([</span><span class="s1">'react'</span><span class="p">,</span> <span class="s1">'immutable'</span><span class="p">],</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">React</span><span class="p">,</span> <span class="nx">Imm</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nb">window</span><span class="p">.</span><span class="nx">React</span> <span class="o">=</span> <span class="nx">React</span><span class="p">;</span>
+  <span class="nb">window</span><span class="p">.</span><span class="nx">Immutable</span> <span class="o">=</span> <span class="nx">Imm</span><span class="p">;</span>
+
+  <span class="nx">require</span><span class="p">([</span><span class="s1">'component/Bootstrap'</span><span class="p">],</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">Bootstrap</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">React</span><span class="p">.</span><span class="nx">renderComponent</span><span class="p">(</span>
+      <span class="nx">Bootstrap</span><span class="p">(),</span>
+      <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">'root'</span><span class="p">)</span>
+    <span class="p">);</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+
+<h1>
+<a name="changelog" class="anchor" href="#changelog"><span class="octicon octicon-link"></span></a>Changelog</h1>
+
+<ul>
+<li>0.4.0 - Normalize dependencies. New standalone build (thanks to Marat Bektimirov). Fixes #19.</li>
+<li>0.3.6 - Fix incorrect behavior of <code>Binding.clear</code>. Correct <code>Context.isChanged</code> when rendering on requestAnimationFrame. Minor improvements.</li>
+<li>0.3.5 - Fix caching issue.</li>
+<li>0.3.4 - #17 Add sub-bindings cache. #18 Don't fail on React render errors. </li>
+<li>0.3.3 - Fix #16 (minimize notifications count on commit). Binding methods now return this (Fluent-API).</li>
+<li>0.3.2 - Fix #14 (support updating binding from root). Update to Immutable 2.0.17.</li>
+<li>0.3.1 - Support delete at non-existent subpath.</li>
+<li>0.3.0 - Reimplement Morearty as a React mixin. Better multi-binding components support. <code>getState</code> method renamed to <code>getBinding</code>, binding is passed in <code>binding</code> attribute by default (was <code>state</code>), introduced default binding <a href="#multi-binding-components-and-default-binding">concept</a>. Update to Immutable 2.0.16.</li>
+<li>0.2.4 - CommonJS modules, simplify build process (thanks to Tim Griesser). Update to Immutable 2.0.15.</li>
+<li>0.2.3 - Update to Immutable 2.0.14 (thanks to Tim Griesser).</li>
+<li>0.2.2 - Add requestAnimationFrame-friendly wrappers around input, textarea, and option. Update to Immutable 2.0.6.</li>
+<li>0.2.1 - Support getDefaultState and <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Context.html#MergeStrategy">getMergeStrategy</a> in components. Allow to <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Context.html#replaceState">replace</a> whole application state. Add <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Binding.html#merge">merge</a> operation to Binding. Callback's <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Callback.html#onKey">onKey</a> now accepts multiple keys in an array.</li>
+<li>0.2.0 - Migrate on Facebook's <a href="https://github.com/facebook/immutable-js">Immutable</a> library. Major API changes.</li>
+<li>0.1.0-0.1.9 (deprecated) - Support rendering in requestAnimationFrame, new methods, bug fixes, library stabilization.</li>
+</ul><h1>
+<a name="api-documentation" class="anchor" href="#api-documentation"><span class="octicon octicon-link"></span></a>API documentation</h1>
+
+<p>Auto-generated API documentation is available <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/index.html">here</a>.</p>
+
+<h1>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h1>
+
+<p>To start using Morearty.js add the <a href="">script</a> to the page or load it with your favorite AMD loader, e.g. <a href="http://requirejs.org/">Require.js</a>, and create Morearty context using <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Morearty.html#createContext">createContext</a> method:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">Ctx</span> <span class="o">=</span> <span class="nx">Morearty</span><span class="p">.</span><span class="nx">createContext</span><span class="p">(</span>
+  <span class="p">{</span> <span class="c1">// initial state</span>
+    <span class="nx">nowShowing</span><span class="o">:</span> <span class="s1">'all'</span><span class="p">,</span>
+    <span class="nx">items</span><span class="o">:</span> <span class="p">[{</span>
+      <span class="nx">title</span><span class="o">:</span> <span class="s1">'My first task'</span><span class="p">,</span>
+      <span class="nx">completed</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+      <span class="nx">editing</span><span class="o">:</span> <span class="kc">false</span>
+    <span class="p">}]</span>
+  <span class="p">},</span>
+  <span class="p">{</span> <span class="c1">// configuration</span>
+    <span class="nx">requestAnimationFrameEnabled</span><span class="o">:</span> <span class="kc">true</span>
+  <span class="p">}</span>
+<span class="p">);</span>
+</pre></div>
+
+<p>Next, create Bootstrap component which will initialize the context and plug it into your application:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">Bootstrap</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+  <span class="nx">componentWillMount</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">Ctx</span><span class="p">.</span><span class="nx">init</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+  <span class="p">},</span>
+
+  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">React</span><span class="p">.</span><span class="nx">withContext</span><span class="p">({</span> <span class="nx">morearty</span><span class="o">:</span> <span class="nx">Ctx</span> <span class="p">},</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span> <span class="c1">// pass Morearty context downside</span>
+      <span class="k">return</span> <span class="nx">App</span><span class="p">({</span> <span class="nx">binding</span><span class="o">:</span> <span class="nx">Ctx</span><span class="p">.</span><span class="nx">getBinding</span><span class="p">()</span> <span class="p">});</span>              <span class="c1">// your App component</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>When you create components this way, they acquire correctly defined <code>shouldComponentUpdate</code> method which uses component's binding (if any) to determine if its state was changed. By default state is transferred to sub-components in <code>binding</code> attribute and can be retrieved using <code>getDefaultBinding</code> method.</p>
+
+<h1>
+<a name="todomvc" class="anchor" href="#todomvc"><span class="octicon octicon-link"></span></a>TodoMVC</h1>
+
+<p>To continue this introduction <a href="http://todomvc.com/">TodoMVC</a> implementation based on Morearty.js will be used (<a href="https://github.com/Tvaroh/todomvc-moreartyjs">repository</a>, <a href="https://rawgit.com/Tvaroh/todomvc-moreartyjs/master/index.html">application</a>). You should have some previous React knowledge to follow painlessly, only Morearty-specific parts will be described.</p>
+
+<h2>
+<a name="app-component" class="anchor" href="#app-component"><span class="octicon octicon-link"></span></a>App component</h2>
+
+<p>Having defined Bootstrap module let's now create main application module <code>App</code>:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">NOW_SHOWING</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">freeze</span><span class="p">({</span> <span class="nx">ALL</span><span class="o">:</span> <span class="s1">'all'</span><span class="p">,</span> <span class="nx">ACTIVE</span><span class="o">:</span> <span class="s1">'active'</span><span class="p">,</span> <span class="nx">COMPLETED</span><span class="o">:</span> <span class="s1">'completed'</span> <span class="p">});</span>
+
+<span class="kd">var</span> <span class="nx">App</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+  <span class="nx">mixins</span><span class="o">:</span> <span class="p">[</span><span class="nx">Morearty</span><span class="p">.</span><span class="nx">Mixin</span><span class="p">],</span>
+
+  <span class="nx">componentDidMount</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">binding</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getDefaultBinding</span><span class="p">();</span>
+    <span class="nx">Router</span><span class="p">({</span>
+      <span class="s1">'/'</span><span class="o">:</span> <span class="nx">binding</span><span class="p">.</span><span class="nx">set</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">binding</span><span class="p">,</span> <span class="s1">'nowShowing'</span><span class="p">,</span> <span class="nx">NOW_SHOWING</span><span class="p">.</span><span class="nx">ALL</span><span class="p">),</span>
+      <span class="s1">'/active'</span><span class="o">:</span> <span class="nx">binding</span><span class="p">.</span><span class="nx">set</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">binding</span><span class="p">,</span> <span class="s1">'nowShowing'</span><span class="p">,</span> <span class="nx">NOW_SHOWING</span><span class="p">.</span><span class="nx">ACTIVE</span><span class="p">),</span>
+      <span class="s1">'/completed'</span><span class="o">:</span> <span class="nx">binding</span><span class="p">.</span><span class="nx">set</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">binding</span><span class="p">,</span> <span class="s1">'nowShowing'</span><span class="p">,</span> <span class="nx">NOW_SHOWING</span><span class="p">.</span><span class="nx">COMPLETED</span><span class="p">)</span>
+    <span class="p">}).</span><span class="nx">init</span><span class="p">();</span>
+  <span class="p">},</span>
+
+  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">binding</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getDefaultBinding</span><span class="p">();</span>
+    <span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">DOM</span><span class="p">;</span>
+    <span class="k">return</span>  <span class="nx">_</span><span class="p">.</span><span class="nx">section</span><span class="p">({</span> <span class="nx">id</span><span class="o">:</span> <span class="s1">'todoapp'</span> <span class="p">},</span>
+      <span class="nx">Header</span><span class="p">({</span> <span class="nx">binding</span><span class="o">:</span> <span class="nx">binding</span> <span class="p">}),</span>
+      <span class="nx">TodoList</span><span class="p">({</span> <span class="nx">binding</span><span class="o">:</span> <span class="nx">binding</span> <span class="p">}),</span>
+      <span class="nx">Footer</span><span class="p">({</span> <span class="nx">binding</span><span class="o">:</span> <span class="nx">binding</span> <span class="p">})</span>
+    <span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>Notice that <code>App</code> uses <code>getDefaultBinding</code> method to retrieve its state binding and delegate it to its children. See <code>getDefaultBinding</code> API <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Morearty.Mixin.html#getDefaultBinding">doc</a> for the discussion of the default binding concept.</p>
+
+<h2>
+<a name="header-component" class="anchor" href="#header-component"><span class="octicon octicon-link"></span></a>Header component</h2>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">Header</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+  <span class="nx">mixins</span><span class="o">:</span> <span class="p">[</span><span class="nx">Morearty</span><span class="p">.</span><span class="nx">Mixin</span><span class="p">],</span>
+
+  <span class="nx">componentDidMount</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">refs</span><span class="p">.</span><span class="nx">newTodo</span><span class="p">.</span><span class="nx">getDOMNode</span><span class="p">().</span><span class="nx">focus</span><span class="p">();</span> <span class="c1">// focus on show</span>
+  <span class="p">},</span>
+
+  <span class="nx">onAddTodo</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">title</span> <span class="o">=</span> <span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">value</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">title</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">getDefaultBinding</span><span class="p">().</span><span class="nx">update</span><span class="p">(</span><span class="s1">'items'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">todos</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// add new item</span>
+        <span class="k">return</span> <span class="nx">todos</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">Immutable</span><span class="p">.</span><span class="nx">Map</span><span class="p">({</span>
+          <span class="nx">title</span><span class="o">:</span> <span class="nx">title</span><span class="p">,</span>
+          <span class="nx">completed</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+          <span class="nx">editing</span><span class="o">:</span> <span class="kc">false</span>
+        <span class="p">}));</span>
+      <span class="p">});</span>
+      <span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">value</span> <span class="o">=</span> <span class="s1">''</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+
+  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">DOM</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">_</span><span class="p">.</span><span class="nx">header</span><span class="p">({</span> <span class="nx">id</span><span class="o">:</span> <span class="s1">'header'</span> <span class="p">},</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">h1</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="s1">'todos'</span><span class="p">),</span>
+      <span class="nx">Morearty</span><span class="p">.</span><span class="nx">DOM</span><span class="p">.</span><span class="nx">input</span><span class="p">({</span> <span class="c1">// requestAnimationFrame-friendly wrapper around input</span>
+        <span class="nx">id</span><span class="o">:</span> <span class="s1">'new-todo'</span><span class="p">,</span>
+        <span class="nx">ref</span><span class="o">:</span> <span class="s1">'newTodo'</span><span class="p">,</span>
+        <span class="nx">placeholder</span><span class="o">:</span> <span class="s1">'What needs to be done?'</span><span class="p">,</span>
+        <span class="nx">onKeyPress</span><span class="o">:</span> <span class="nx">Morearty</span><span class="p">.</span><span class="nx">Callback</span><span class="p">.</span><span class="nx">onEnter</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">onAddTodo</span><span class="p">)</span>
+      <span class="p">})</span>
+    <span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>In <code>onAddTodo</code> method component state is <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Binding.html#update">updated</a> by appending new TODO item to the list. <code>render</code> method output custom <code>input</code> component version suitable for <a href="https://github.com/Tvaroh/moreartyjs#requestanimationframe-support">rendering in requestAnimationFrame</a>.</p>
+
+<h2>
+<a name="todolist-component" class="anchor" href="#todolist-component"><span class="octicon octicon-link"></span></a>TodoList component</h2>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">TodoList</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+  <span class="nx">mixins</span><span class="o">:</span> <span class="p">[</span><span class="nx">Morearty</span><span class="p">.</span><span class="nx">Mixin</span><span class="p">],</span>
+
+  <span class="nx">onToggleAll</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">completed</span> <span class="o">=</span> <span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">checked</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">getDefaultBinding</span><span class="p">().</span><span class="nx">update</span><span class="p">(</span><span class="s1">'items'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">items</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">items</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">item</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'completed'</span><span class="p">,</span> <span class="nx">completed</span><span class="p">);</span>
+      <span class="p">}).</span><span class="nx">toVector</span><span class="p">();</span>
+    <span class="p">});</span>
+  <span class="p">},</span>
+
+  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">binding</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getDefaultBinding</span><span class="p">();</span>
+    <span class="kd">var</span> <span class="nx">nowShowing</span> <span class="o">=</span> <span class="nx">binding</span><span class="p">.</span><span class="nx">val</span><span class="p">(</span><span class="s1">'nowShowing'</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">itemsBinding</span> <span class="o">=</span> <span class="nx">binding</span><span class="p">.</span><span class="nx">sub</span><span class="p">(</span><span class="s1">'items'</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">items</span> <span class="o">=</span> <span class="nx">itemsBinding</span><span class="p">.</span><span class="nx">val</span><span class="p">();</span>
+
+    <span class="kd">var</span> <span class="nx">isShown</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">switch</span> <span class="p">(</span><span class="nx">nowShowing</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="nx">NOW_SHOWING</span><span class="p">.</span><span class="nx">ALL</span><span class="o">:</span>
+          <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+        <span class="k">case</span> <span class="nx">NOW_SHOWING</span><span class="p">.</span><span class="nx">ACTIVE</span><span class="o">:</span>
+          <span class="k">return</span> <span class="o">!</span><span class="nx">item</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'completed'</span><span class="p">);</span>
+        <span class="k">case</span> <span class="nx">NOW_SHOWING</span><span class="p">.</span><span class="nx">COMPLETED</span><span class="o">:</span>
+          <span class="k">return</span> <span class="nx">item</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'completed'</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">};</span>
+
+    <span class="kd">var</span> <span class="nx">renderTodo</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">item</span><span class="p">,</span> <span class="nx">index</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">isShown</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="o">?</span> <span class="nx">TodoItem</span><span class="p">({</span> <span class="nx">binding</span><span class="o">:</span> <span class="nx">itemsBinding</span><span class="p">.</span><span class="nx">sub</span><span class="p">(</span><span class="nx">index</span><span class="p">)</span> <span class="p">})</span> <span class="o">:</span> <span class="kc">null</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="kd">var</span> <span class="nx">allCompleted</span> <span class="o">=</span> <span class="o">!</span><span class="nx">items</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="o">!</span><span class="nx">item</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'completed'</span><span class="p">);</span>
+    <span class="p">});</span>
+
+    <span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">DOM</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">ctx</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getMoreartyContext</span><span class="p">();</span>
+    <span class="k">return</span> <span class="nx">_</span><span class="p">.</span><span class="nx">section</span><span class="p">({</span> <span class="nx">id</span><span class="o">:</span> <span class="s1">'main'</span> <span class="p">},</span>
+      <span class="nx">items</span><span class="p">.</span><span class="nx">length</span> <span class="o">?</span> <span class="nx">Morearty</span><span class="p">.</span><span class="nx">DOM</span><span class="p">.</span><span class="nx">input</span><span class="p">({</span> <span class="nx">id</span><span class="o">:</span> <span class="s1">'toggle-all'</span><span class="p">,</span> <span class="nx">type</span><span class="o">:</span> <span class="s1">'checkbox'</span><span class="p">,</span> <span class="nx">checked</span><span class="o">:</span> <span class="nx">allCompleted</span><span class="p">,</span> <span class="nx">onChange</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">onToggleAll</span> <span class="p">})</span> <span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">ul</span><span class="p">({</span> <span class="nx">id</span><span class="o">:</span> <span class="s1">'todo-list'</span> <span class="p">},</span>
+        <span class="nx">items</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">renderTodo</span><span class="p">).</span><span class="nx">toArray</span><span class="p">()</span>
+      <span class="p">)</span>
+    <span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+<p><code>onToggleAll</code> callback sets <code>completed</code> property on all items. Note how state is transferred to the children: only the relevant sub-state is passed using <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Binding.html#sub">sub</a> method which creates a sub-binding pointing deeper into global state. So, TODO item can only access and modify its own cell, and the rest of application state is protected from incidental modification. <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Binding.html#val">val</a> method allows to retrieve the value stored in the binding or in its sub-path.</p>
+
+<h2>
+<a name="todoitem" class="anchor" href="#todoitem"><span class="octicon octicon-link"></span></a>TodoItem</h2>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">TodoItem</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+  <span class="nx">mixins</span><span class="o">:</span> <span class="p">[</span><span class="nx">Morearty</span><span class="p">.</span><span class="nx">Mixin</span><span class="p">],</span>
+
+  <span class="nx">componentDidUpdate</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">ctx</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getMoreartyContext</span><span class="p">();</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nx">isChanged</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">getDefaultBinding</span><span class="p">().</span><span class="nx">sub</span><span class="p">(</span><span class="s1">'editing'</span><span class="p">)))</span> <span class="p">{</span>
+      <span class="kd">var</span> <span class="nx">node</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">refs</span><span class="p">.</span><span class="nx">editField</span><span class="p">.</span><span class="nx">getDOMNode</span><span class="p">();</span>
+      <span class="nx">node</span><span class="p">.</span><span class="nx">focus</span><span class="p">();</span>
+      <span class="nx">node</span><span class="p">.</span><span class="nx">setSelectionRange</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span> <span class="nx">node</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">length</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+
+  <span class="nx">onToggleCompleted</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">getDefaultBinding</span><span class="p">().</span><span class="nx">set</span><span class="p">(</span><span class="s1">'completed'</span><span class="p">,</span> <span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">checked</span><span class="p">);</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+  <span class="p">},</span>
+
+  <span class="nx">onToggleEditing</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">editing</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">getDefaultBinding</span><span class="p">().</span><span class="nx">set</span><span class="p">(</span><span class="s1">'editing'</span><span class="p">,</span> <span class="nx">editing</span><span class="p">);</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+  <span class="p">},</span>
+
+  <span class="nx">onEnter</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">event</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">getDefaultBinding</span><span class="p">().</span><span class="nx">atomically</span><span class="p">()</span>
+      <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'title'</span><span class="p">,</span> <span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'editing'</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">commit</span><span class="p">();</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+  <span class="p">},</span>
+
+  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">binding</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getDefaultBinding</span><span class="p">();</span>
+    <span class="kd">var</span> <span class="nx">item</span> <span class="o">=</span> <span class="nx">binding</span><span class="p">.</span><span class="nx">val</span><span class="p">();</span>
+
+    <span class="kd">var</span> <span class="nx">liClass</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">addons</span><span class="p">.</span><span class="nx">classSet</span><span class="p">({</span>
+      <span class="nx">completed</span><span class="o">:</span> <span class="nx">item</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'completed'</span><span class="p">),</span>
+      <span class="nx">editing</span><span class="o">:</span> <span class="nx">item</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'editing'</span><span class="p">)</span>
+    <span class="p">});</span>
+    <span class="kd">var</span> <span class="nx">title</span> <span class="o">=</span> <span class="nx">item</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'title'</span><span class="p">);</span>
+
+    <span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">DOM</span><span class="p">;</span>
+    <span class="kd">var</span> <span class="nx">ctx</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getMoreartyContext</span><span class="p">();</span>
+    <span class="k">return</span> <span class="nx">_</span><span class="p">.</span><span class="nx">li</span><span class="p">({</span> <span class="nx">className</span><span class="o">:</span> <span class="nx">liClass</span> <span class="p">},</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">div</span><span class="p">({</span> <span class="nx">className</span><span class="o">:</span> <span class="s1">'view'</span> <span class="p">},</span>
+        <span class="nx">Morearty</span><span class="p">.</span><span class="nx">DOM</span><span class="p">.</span><span class="nx">input</span><span class="p">({</span>
+          <span class="nx">className</span><span class="o">:</span> <span class="s1">'toggle'</span><span class="p">,</span>
+          <span class="nx">type</span><span class="o">:</span> <span class="s1">'checkbox'</span><span class="p">,</span>
+          <span class="nx">checked</span><span class="o">:</span> <span class="nx">item</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'completed'</span><span class="p">),</span>
+          <span class="nx">onChange</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">onToggleCompleted</span>
+        <span class="p">}),</span>
+        <span class="nx">_</span><span class="p">.</span><span class="nx">label</span><span class="p">({</span> <span class="nx">onClick</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">onToggleEditing</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span> <span class="p">},</span> <span class="nx">title</span><span class="p">),</span>
+        <span class="nx">_</span><span class="p">.</span><span class="nx">button</span><span class="p">({</span> <span class="nx">className</span><span class="o">:</span> <span class="s1">'destroy'</span><span class="p">,</span> <span class="nx">onClick</span><span class="o">:</span> <span class="nx">binding</span><span class="p">.</span><span class="k">delete</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">binding</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span> <span class="p">})</span>
+      <span class="p">),</span>
+      <span class="nx">Morearty</span><span class="p">.</span><span class="nx">DOM</span><span class="p">.</span><span class="nx">input</span><span class="p">({</span>
+        <span class="nx">className</span><span class="o">:</span> <span class="s1">'edit'</span><span class="p">,</span>
+        <span class="nx">ref</span><span class="o">:</span> <span class="s1">'editField'</span><span class="p">,</span>
+        <span class="nx">value</span><span class="o">:</span> <span class="nx">title</span><span class="p">,</span>
+        <span class="nx">onChange</span><span class="o">:</span> <span class="nx">Morearty</span><span class="p">.</span><span class="nx">Callback</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">binding</span><span class="p">,</span> <span class="s1">'title'</span><span class="p">),</span>
+        <span class="nx">onKeyPress</span><span class="o">:</span> <span class="nx">Morearty</span><span class="p">.</span><span class="nx">Callback</span><span class="p">.</span><span class="nx">onEnter</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">onEnter</span><span class="p">),</span>
+        <span class="nx">onBlur</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">onToggleEditing</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
+      <span class="p">})</span>
+    <span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>Here component title is written to the global state using <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Callback.html#set">set</a> helper when text in changed. To delete the item no callback needs to be passed from the parent: item component just calls Binding's <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Binding.html#delete">delete</a> method which removes it from the list of items. In <code>onEnter</code> method transaction is used to prevent re-rendering between state transitions. It effectively notifies global listeners once on <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/TransactionContext.html#commit">commit</a>.</p>
+
+<h2>
+<a name="footer-component" class="anchor" href="#footer-component"><span class="octicon octicon-link"></span></a>Footer component</h2>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">Footer</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+  <span class="nx">mixins</span><span class="o">:</span> <span class="p">[</span><span class="nx">Morearty</span><span class="p">.</span><span class="nx">Mixin</span><span class="p">],</span>
+
+  <span class="nx">onClearCompleted</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">getDefaultBinding</span><span class="p">().</span><span class="nx">update</span><span class="p">(</span><span class="s1">'items'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">items</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">items</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">!</span><span class="nx">item</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'completed'</span><span class="p">);</span>
+      <span class="p">}).</span><span class="nx">toVector</span><span class="p">();</span>
+    <span class="p">});</span>
+  <span class="p">},</span>
+
+  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">binding</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getDefaultBinding</span><span class="p">();</span>
+    <span class="kd">var</span> <span class="nx">nowShowing</span> <span class="o">=</span> <span class="nx">binding</span><span class="p">.</span><span class="nx">val</span><span class="p">(</span><span class="s1">'nowShowing'</span><span class="p">);</span>
+
+    <span class="kd">var</span> <span class="nx">items</span> <span class="o">=</span> <span class="nx">binding</span><span class="p">.</span><span class="nx">val</span><span class="p">(</span><span class="s1">'items'</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">completedItemsCount</span> <span class="o">=</span> <span class="nx">items</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">acc</span><span class="p">,</span> <span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">item</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'completed'</span><span class="p">)</span> <span class="o">?</span> <span class="nx">acc</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">:</span> <span class="nx">acc</span><span class="p">;</span>
+    <span class="p">},</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="kd">var</span> <span class="nx">_</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">DOM</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nx">_</span><span class="p">.</span><span class="nx">footer</span><span class="p">({</span> <span class="nx">id</span><span class="o">:</span> <span class="s1">'footer'</span> <span class="p">},</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">span</span><span class="p">({</span> <span class="nx">id</span><span class="o">:</span> <span class="s1">'todo-count'</span> <span class="p">},</span> <span class="nx">items</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="nx">completedItemsCount</span> <span class="o">+</span> <span class="s1">' items left'</span><span class="p">),</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">ul</span><span class="p">({</span> <span class="nx">id</span><span class="o">:</span> <span class="s1">'filters'</span> <span class="p">},</span>
+        <span class="nx">_</span><span class="p">.</span><span class="nx">li</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">_</span><span class="p">.</span><span class="nx">a</span><span class="p">({</span> <span class="nx">className</span><span class="o">:</span> <span class="nx">nowShowing</span> <span class="o">===</span> <span class="nx">NOW_SHOWING</span><span class="p">.</span><span class="nx">ALL</span> <span class="o">?</span> <span class="s1">'selected'</span> <span class="o">:</span> <span class="s1">''</span><span class="p">,</span> <span class="nx">href</span><span class="o">:</span> <span class="s1">'#/'</span> <span class="p">},</span> <span class="s1">'All'</span><span class="p">)),</span>
+        <span class="nx">_</span><span class="p">.</span><span class="nx">li</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">_</span><span class="p">.</span><span class="nx">a</span><span class="p">({</span> <span class="nx">className</span><span class="o">:</span> <span class="nx">nowShowing</span> <span class="o">===</span> <span class="nx">NOW_SHOWING</span><span class="p">.</span><span class="nx">ACTIVE</span> <span class="o">?</span> <span class="s1">'selected'</span> <span class="o">:</span> <span class="s1">''</span><span class="p">,</span> <span class="nx">href</span><span class="o">:</span> <span class="s1">'#/active'</span> <span class="p">},</span> <span class="s1">'Active'</span><span class="p">)),</span>
+        <span class="nx">_</span><span class="p">.</span><span class="nx">li</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">_</span><span class="p">.</span><span class="nx">a</span><span class="p">({</span> <span class="nx">className</span><span class="o">:</span> <span class="nx">nowShowing</span> <span class="o">===</span> <span class="nx">NOW_SHOWING</span><span class="p">.</span><span class="nx">COMPLETED</span> <span class="o">?</span> <span class="s1">'selected'</span> <span class="o">:</span> <span class="s1">''</span><span class="p">,</span> <span class="nx">href</span><span class="o">:</span> <span class="s1">'#/completed'</span> <span class="p">},</span> <span class="s1">'Completed'</span><span class="p">))</span>
+      <span class="p">),</span>
+      <span class="nx">completedItemsCount</span> <span class="o">?</span>
+        <span class="nx">_</span><span class="p">.</span><span class="nx">button</span><span class="p">({</span> <span class="nx">id</span><span class="o">:</span> <span class="s1">'clear-completed'</span><span class="p">,</span> <span class="nx">onClick</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">onClearCompleted</span> <span class="p">},</span>
+            <span class="s1">'Clear completed ('</span> <span class="o">+</span> <span class="nx">completedItemsCount</span> <span class="o">+</span> <span class="s1">')'</span>
+        <span class="p">)</span> <span class="o">:</span>
+        <span class="kc">null</span>
+    <span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+<p>Nothing special here so let's jump straight to...</p>
+
+<h2>
+<a name="starting-the-application" class="anchor" href="#starting-the-application"><span class="octicon octicon-link"></span></a>Starting the application</h2>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">React</span><span class="p">.</span><span class="nx">renderComponent</span><span class="p">(</span>
+  <span class="nx">Bootstrap</span><span class="p">(),</span>
+  <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">'root'</span><span class="p">)</span>
+<span class="p">);</span>
+</pre></div>
+
+<p>Just usual React routine here.</p>
+
+<h2>
+<a name="principal-differences-from-raw-react" class="anchor" href="#principal-differences-from-raw-react"><span class="octicon octicon-link"></span></a>Principal differences from raw React</h2>
+
+<p>You can compare this Morearty-based TodoMVC implementation to the official React <a href="https://github.com/tastejs/todomvc/tree/gh-pages/architecture-examples/react">version</a>. Main highlights are:</p>
+
+<ul>
+<li>No callbacks are passed to sub-components. This becomes especially useful when you find yourself trying to transfer a callback to a component's grand-children (you may never know how you DOM may be restructured after a redesign). There is nothing inherently wrong in passing callbacks to sub-components, but in many cases this can be avoided.</li>
+<li>No hacks in code simulating immutable state and other tricks (look at the comments withing React version sources).</li>
+<li>Reasoning about the application is much simpler!</li>
+<li>Each component gets <code>shouldComponentUpdate</code> method, no need to define it manually (but you can if you like).</li>
+<li>Less code.</li>
+</ul><h1>
+<a name="custom-shouldcomponentupdate" class="anchor" href="#custom-shouldcomponentupdate"><span class="octicon octicon-link"></span></a>Custom shouldComponentUpdate</h1>
+
+<p>If customized <code>shouldComponentUpdate</code> is needed, declare <code>shouldComponentUpdateOverride</code> method accepting original <code>shouldComponentUpdate</code>, <code>nextProps</code>, and <code>nextState</code>, e.g.:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">shouldComponentUpdateOverride</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">shouldComponentUpdate</span><span class="p">,</span> <span class="nx">nextProps</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">shouldComponentUpdate</span><span class="p">()</span> <span class="o">||</span>
+    <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">props</span> <span class="o">&amp;&amp;</span> <span class="nx">nextProps</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">language</span> <span class="o">!==</span> <span class="nx">nextProps</span><span class="p">.</span><span class="nx">language</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+<h1>
+<a name="multi-binding-components-and-default-binding" class="anchor" href="#multi-binding-components-and-default-binding"><span class="octicon octicon-link"></span></a>Multi-binding components and default binding</h1>
+
+<p>For some components single binding may be not enough. For example, you display some data but display language is set globally in other state section. You can choose to pass language as an attribute and override <code>shouldComponentUpdate</code> method as above (if you don't do this, the component won't be re-rendered on attribute change). Alternatively, you can supply multiple bindings to your component in JavaScript object:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">render</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">MyComponent</span><span class="p">({</span> <span class="nx">binding</span><span class="o">:</span> <span class="p">{</span> <span class="k">default</span><span class="o">:</span> <span class="nx">defaultBinding</span><span class="p">,</span> <span class="nx">language</span><span class="o">:</span> <span class="nx">languageBinding</span> <span class="p">}</span> <span class="p">});</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>When checking for modifications every component's binding will be assumed.</p>
+
+<p>To comfortably extend your components to multiple bindings default binding concept is introduced. You start with single binding and acquire it using <code>this.getDefaultBinding()</code> method which always return single binding for single-binding components (no matter how it was passed - directly or in an object) and binding with key <code>default</code> (hence the name) for multi-binding components. When you move to multiple-binding you access your auxiliary bindings with <code>this.getBinding(name)</code> method while existing code stays intact:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">binding</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getDefaultBinding</span><span class="p">();</span> <span class="c1">// no changes required</span>
+<span class="kd">var</span> <span class="nx">languageBinding</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getBinding</span><span class="p">(</span><span class="s1">'language'</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">language</span> <span class="o">=</span> <span class="nx">languageBinding</span><span class="p">.</span><span class="nx">val</span><span class="p">();</span>
+<span class="c1">// ...</span>
+</pre></div>
+
+<h1>
+<a name="default-state-publication" class="anchor" href="#default-state-publication"><span class="octicon octicon-link"></span></a>Default state publication</h1>
+
+<p>Often, component needs to initialize its state on mount. In Morearty model, when component is mounted, its state may already contain some data. For example, you can persist application state to local storage by converting it to <a href="https://github.com/cognitect/transit-js">transit-js</a> format (helpful <a href="https://gist.github.com/Tvaroh/52efbe8f4541ca537908">gist</a> supporting sets and ordered maps) and restore it on start. For this to work Morearty supports four merge strategies out of the box and the custom one:</p>
+
+<ul>
+<li>
+<code>Morearty.MERGE_STRATEGY.OVERWRITE</code> - overwrite existing state;</li>
+<li>
+<code>Morearty.MERGE_STRATEGY.OVERWRITE_EMPTY</code> - overwrite if existing state is empty (undefined or null);</li>
+<li>
+<code>Morearty.MERGE_STRATEGY.MERGE_PRESERVE</code> (default) - perform deep merge preserving existing values;</li>
+<li>
+<code>Morearty.MERGE_STRATEGY.MERGE_REPLACE</code> - perform deep merge replacing existing values;</li>
+<li>custom function accepting <code>currentState</code>, <code>defaultState</code> and returning merge result.</li>
+</ul><p>To initialize component's state on mount declare <code>getDefaultState</code> method:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">getDefaultState</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">Immutable</span><span class="p">.</span><span class="nx">Map</span><span class="p">({</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nx">status</span><span class="o">:</span> <span class="s1">'...'</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>or for multi-binding component:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">getDefaultState</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="k">default</span><span class="o">:</span> <span class="nx">Immutable</span><span class="p">.</span><span class="nx">Map</span><span class="p">({</span>
+      <span class="nx">name</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+      <span class="nx">status</span><span class="o">:</span> <span class="s1">'...'</span>
+    <span class="p">}),</span>
+    <span class="nx">language</span><span class="o">:</span> <span class="s1">'en'</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>You can customize merge strategy by declaring <code>getMergeStrategy</code> method:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">getMergeStrategy</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">Morearty</span><span class="p">.</span><span class="nx">MERGE_STRATEGY</span><span class="p">.</span><span class="nx">OVERWRITE</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>or for multi-binding component:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">getMergeStrategy</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="k">default</span><span class="o">:</span> <span class="nx">Morearty</span><span class="p">.</span><span class="nx">MERGE_STRATEGY</span><span class="p">.</span><span class="nx">MERGE_PRESERVE</span><span class="p">,</span>
+    <span class="nx">language</span><span class="o">:</span> <span class="nx">Morearty</span><span class="p">.</span><span class="nx">MERGE_STRATEGY</span><span class="p">.</span><span class="nx">OVERWRITE</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+</pre></div>
+
+<h1>
+<a name="requestanimationframe-support" class="anchor" href="#requestanimationframe-support"><span class="octicon octicon-link"></span></a>requestAnimationFrame support</h1>
+
+<p>Morearty supports rendering in <a href="https://developer.mozilla.org/en/docs/Web/API/window.requestAnimationFrame">requestAnimationFrame</a>. Just pass <code>requestAnimationFrameEnabled</code> property to <code>createContext</code> function. See <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Morearty.html#createContext">details</a> in the API documentation.</p>
+
+<p>Note that enabling this feature will produce strange results when using controlled inputs, e.g. focus jumping to the end of the line. To fix that, Morearty provides requestAnimationFrame-friendly wrappers <code>ctx.DOM.input</code>, <code>ctx.DOM.textarea</code>, and <code>ctx.DOM.option</code> (where <code>ctx</code> is Morearty context instance obtained using <code>this.getMoreartyContext()</code> method) like Om <a href="https://github.com/swannodette/om/blob/master/src/om/dom.cljs">does</a>.</p>
+
+<h1>
+<a name="other-features" class="anchor" href="#other-features"><span class="octicon octicon-link"></span></a>Other features</h1>
+
+<ul>
+<li>
+<a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Util.html">Util</a> module with some useful functions;</li>
+<li>
+<a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/History.html">History</a> module well-integrated with <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Binding.html">Binding</a> allowing to painlessly implement undo/redo;</li>
+<li>
+<a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Callback.html">Callback</a> module;</li>
+<li>binding listeners support: you can listen to state changes and react accordingly;</li>
+<li>and <a href="https://github.com/Tvaroh/moreartyjs#api-documentation">more</a>.</li>
+</ul><h1>
+<a name="future-goals-by-priority" class="anchor" href="#future-goals-by-priority"><span class="octicon octicon-link"></span></a>Future goals by priority</h1>
+
+<ol>
+<li>Leverage Immutable cursors.</li>
+<li>Improve the documentation, provide more examples.</li>
+<li>Gather community feedback to find areas for improvement.</li>
+<li>Stabilize API and code.</li>
+<li>Battle-test the library on more projects.</li>
+</ol><h1>
+<a name="credits" class="anchor" href="#credits"><span class="octicon octicon-link"></span></a>Credits</h1>
+
+<ul>
+<li>Alexander Semenov <a href="https://github.com/Tvaroh" class="user-mention">@Tvaroh</a> (author)</li>
+<li>Tim Griesser <a href="https://github.com/tgriesser" class="user-mention">@tgriesser</a> (collaborator)</li>
+<li>Marat Bektimirov <a href="https://github.com/mbektimirov" class="user-mention">@mbektimirov</a> (collaborator)</li>
+</ul>
+        </section>
+
+        <footer>
+          Moreartyjs is maintained by <a href="https://github.com/Tvaroh">Tvaroh</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
