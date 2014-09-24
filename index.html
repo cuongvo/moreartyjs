@@ -523,7 +523,7 @@
 
 <p>Morearty supports rendering in <a href="https://developer.mozilla.org/en/docs/Web/API/window.requestAnimationFrame">requestAnimationFrame</a>. Just pass <code>requestAnimationFrameEnabled</code> property to <code>createContext</code> function. See <a href="https://rawgit.com/Tvaroh/moreartyjs/master/doc/Morearty.html#createContext">details</a> in the API documentation.</p>
 
-<p>Note that enabling this feature will produce strange results when using controlled inputs, e.g. focus jumping to the end of the line. To fix that, Morearty provides requestAnimationFrame-friendly wrappers <code>ctx.DOM.input</code>, <code>ctx.DOM.textarea</code>, and <code>ctx.DOM.option</code> (where <code>ctx</code> is Morearty context instance obtained using <code>this.getMoreartyContext()</code> method) like Om <a href="https://github.com/swannodette/om/blob/master/src/om/dom.cljs">does</a>.</p>
+<p>Note that enabling this feature will produce strange results when using controlled inputs, e.g. focus jumping to the end of the line. To fix that, Morearty provides requestAnimationFrame-friendly wrappers <code>Morearty.DOM.input</code>, <code>Morearty.DOM.textarea</code>, and <code>Morearty.DOM.option</code> like Om <a href="https://github.com/swannodette/om/blob/master/src/om/dom.cljs">does</a>.</p>
 
 <h1>
 <a name="other-features" class="anchor" href="#other-features"><span class="octicon octicon-link"></span></a>Other features</h1>
